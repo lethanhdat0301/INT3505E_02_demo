@@ -4,11 +4,11 @@ python -m venv venv
 .\venv\Scripts\activate  
 python app.py  
 
-### GET
+### GET  
 ![Demo GET](get.png)
-### POST
+### POST  
 ![Demo POST](post.png)
-### PUT
+### PUT  
 ![Demo PUT](put.png)
-###DELETE
+### DELETE  
 ![Demo DELETE](delete.png)
