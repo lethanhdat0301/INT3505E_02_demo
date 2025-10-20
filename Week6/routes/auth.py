@@ -70,6 +70,6 @@ def login():
     if not user or not user.check_password(password):
         return jsonify({"error": "invalid credentials"}), 401
     
-    token = create_access_token(identity=user.id)
+    token = create_access_token(identity=str(user.id))
 
     return jsonify({'access_token': token, 'user': user.to_dict()}), 200
