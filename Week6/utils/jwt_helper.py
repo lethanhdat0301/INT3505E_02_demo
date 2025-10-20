@@ -44,3 +44,5 @@ def jwt_required(f):
         
         return f(*args, **kwargs)
     return decorated
+
+jwt_required = jwt_required

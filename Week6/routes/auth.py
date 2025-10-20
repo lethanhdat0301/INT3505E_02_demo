@@ -2,7 +2,7 @@ from flask import Blueprint, request, jsonify, current_app
 from flasgger import swag_from
 from database import db
 from models import User
-from utils.jwt_helper import create_access_token
+from utils.jwt_helper import create_access_token, decode_token
 
 auth_bp = Blueprint('auth', __name__)
 
@@ -73,3 +73,46 @@ def login():
     token = create_access_token(identity=str(user.id))
 
     return jsonify({'access_token': token, 'user': user.to_dict()}), 200
+
+
+@auth_bp.route('/api/v1/auth/admin', methods=['GET'])
+@swag_from({
+    'tags': ['Auth'],
+    'parameters': [
+        {
+            'name': 'Authorization',
+            'in': 'header',
+            'type': 'string',
+            'required': True,
+            'description': 'Bearer <JWT access token>'
+        }
+    ],
+    'responses': {
+        200: {
+            'description': 'Decoded token payload',
+            'examples': {
+                'application/json': {
+                    'token_payload': {'sub': 2, 'iat': 1600000000, 'exp': 1600003600}
+                }
+            }
+        },
+        401: {'description': 'Missing or invalid token'}
+    }
+})
+def admin():
+    auth = request.headers.get('Authorization', None)
+    if not auth:
+        return jsonify({'error': 'Authorization header missing'}), 401
+
+    parts = auth.split()
+    if parts[0].lower() != 'bearer' or len(parts) != 2:
+        return jsonify({'error': 'Invalid Authorization header'}), 401
+
+    token = parts[1]
+    try:
+        payload = decode_token(token)
+        # return only non-sensitive claims
+        safe_payload = {k: v for k, v in payload.items() if k not in ['pw', 'password', 'secret']}
+        return jsonify({'token_payload': safe_payload}), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 401
