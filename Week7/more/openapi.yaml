@@ -1,0 +1,86 @@
+openapi: 3.0.0
+info:
+  title: Library API
+  version: 1.0.0
+  description: API quản lý thư viện
+servers:
+  - url: http://localhost:8080/api
+paths:
+  /books:
+    get:
+      summary: Lấy danh sách tất cả sách
+      responses:
+        '200':
+          description: Danh sách sách
+    post:
+      summary: Thêm sách mới
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Book'
+      responses:
+        '201':
+          description: Sách đã được thêm
+  /books/{id}:
+    get:
+      summary: Lấy thông tin sách theo ID
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+          required: true
+      responses:
+        '200':
+          description: Thông tin sách
+    put:
+      summary: Cập nhật sách theo ID
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+          required: true
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Book'
+      responses:
+        '200':
+          description: Đã cập nhật
+    delete:
+      summary: Xóa sách theo ID
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+          required: true
+      responses:
+        '204':
+          description: Đã xóa
+
+components:
+  schemas:
+    Book:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        title:
+          type: string
+          example: "Clean Code"
+        author:
+          type: string
+          example: "Robert C. Martin"
+        published_year:
+          type: integer
+          example: 2008
+        available:
+          type: boolean
+          example: true

@@ -1,0 +1,102 @@
+openapi: 3.0.0
+info:
+  title: Library API
+  description: API quản lý thư viện
+  version: 1.0.0
+servers:
+- url: http://localhost:8080/api
+paths:
+  /books:
+    get:
+      summary: Lấy danh sách tất cả sách
+      operationId: books_get
+      responses:
+        "200":
+          description: Danh sách sách
+      x-openapi-router-controller: swagger_server.controllers.default_controller
+    post:
+      summary: Thêm sách mới
+      operationId: books_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Book'
+        required: true
+      responses:
+        "201":
+          description: Sách đã được thêm
+      x-openapi-router-controller: swagger_server.controllers.default_controller
+  /books/{id}:
+    get:
+      summary: Lấy thông tin sách theo ID
+      operationId: books_id_get
+      parameters:
+      - name: id
+        in: path
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: integer
+      responses:
+        "200":
+          description: Thông tin sách
+      x-openapi-router-controller: swagger_server.controllers.default_controller
+    put:
+      summary: Cập nhật sách theo ID
+      operationId: books_id_put
+      parameters:
+      - name: id
+        in: path
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Book'
+        required: true
+      responses:
+        "200":
+          description: Đã cập nhật
+      x-openapi-router-controller: swagger_server.controllers.default_controller
+    delete:
+      summary: Xóa sách theo ID
+      operationId: books_id_delete
+      parameters:
+      - name: id
+        in: path
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: integer
+      responses:
+        "204":
+          description: Đã xóa
+      x-openapi-router-controller: swagger_server.controllers.default_controller
+components:
+  schemas:
+    Book:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        title:
+          type: string
+          example: Clean Code
+        author:
+          type: string
+          example: Robert C. Martin
+        published_year:
+          type: integer
+          example: 2008
+        available:
+          type: boolean
+          example: true
+
