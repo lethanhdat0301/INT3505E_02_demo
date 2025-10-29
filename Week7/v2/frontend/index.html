@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <title>Flask JWT Demo</title>
+  <style>
+    body {
+      font-family: Arial;
+      background: #f5f6fa;
+      padding: 20px;
+    }
+    h2 {
+      color: #2f3640;
+    }
+    input {
+      display: block;
+      margin-bottom: 10px;
+      padding: 8px;
+      width: 250px;
+    }
+    button {
+      padding: 8px 15px;
+      cursor: pointer;
+      background: #0097e6;
+      color: white;
+      border: none;
+      border-radius: 4px;
+    }
+    #output {
+      margin-top: 20px;
+      white-space: pre-wrap;
+      background: #dcdde1;
+      padding: 10px;
+      border-radius: 6px;
+    }
+  </style>
+</head>
+<body>
+  <h2>Đăng ký</h2>
+  <input id="reg_name" placeholder="Tên">
+  <input id="reg_email" placeholder="Email">
+  <input id="reg_password" type="password" placeholder="Mật khẩu">
+  <button onclick="register()">Đăng ký</button>
+
+  <h2>Đăng nhập</h2>
+  <input id="login_email" placeholder="Email">
+  <input id="login_password" type="password" placeholder="Mật khẩu">
+  <button id="login-btn">Đăng nhập</button>
+  <button onclick="logout()">Đăng xuất</button>
+
+  <h2>Gọi API /admin</h2>
+  <button onclick="getAdmin()">Xem payload từ token</button>
+
+  <div id="output"></div>
+
+  <script src="scripts.js"></script>
+</body>
+</html>

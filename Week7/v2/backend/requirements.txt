@@ -1,0 +1,6 @@
+flask
+flask_sqlalchemy
+flasgger
+flask_cors
+PyJWT>=2.0.0
+werkzeug
