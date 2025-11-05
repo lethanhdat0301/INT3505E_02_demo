@@ -117,6 +117,44 @@ def get_books():
     
     return jsonify(result), 200
 
+@books_bp.route('/api/v1/books/<int:book_id>', methods=['GET'])
+@swag_from({
+    'tags': ['Books'],
+    'parameters': [
+        {
+            'name': 'book_id',
+            'in': 'path',
+            'type': 'integer',
+            'required': True,
+            'description': 'ID của sách cần lấy thông tin'
+        }
+    ],
+    'responses': {
+        200: {
+            'description': 'Thông tin chi tiết của sách',
+            'examples': {
+                'application/json': {
+                    "id": 1,
+                    "title": "Python 101",
+                    "author": "Mike",
+                    "category": "Lập trình",
+                    "is_available": True
+                }
+            }
+        },
+        404: {'description': 'Không tìm thấy sách với ID này'}
+    }
+})
+def get_book_by_id(book_id):
+    """Lấy thông tin chi tiết 1 quyển sách theo ID"""
+    book = Book.query.get(book_id)
+    
+    if not book:
+        return jsonify({
+            "error": f"Không tìm thấy sách có ID = {book_id}"
+        }), 404
+
+    return jsonify(book.to_dict()), 200
 
 @books_bp.route('/api/v1/books', methods=['POST'])
 @swag_from({
@@ -172,3 +210,51 @@ def create_book():
     except Exception as e:
         db.session.rollback()
         return jsonify({"error": str(e)}), 400
+
+
+@books_bp.route('/api/v1/books/<int:book_id>', methods=['DELETE'])
+@swag_from({
+    'tags': ['Books'],
+    'parameters': [
+        {
+            'name': 'book_id',
+            'in': 'path',
+            'type': 'integer',
+            'required': True,
+            'description': 'ID của sách cần xóa'
+        }
+    ],
+    'responses': {
+        200: {
+            'description': 'Xóa sách thành công',
+            'examples': {
+                'application/json': {
+                    "message": "Đã xóa sách có ID = 1 thành công"
+                }
+            }
+        },
+        404: {'description': 'Không tìm thấy sách với ID này'}
+    }
+})
+def delete_book(book_id):
+    """Xóa sách theo ID"""
+    book = Book.query.get(book_id)
+
+    # Nếu không tìm thấy sách
+    if not book:
+        return jsonify({
+            "error": f"Không tìm thấy sách có ID = {book_id}"
+        }), 404
+
+    try:
+        db.session.delete(book)
+        db.session.commit()
+        return jsonify({
+            "message": f"Đã xóa sách có ID = {book_id} thành công"
+        }), 200
+
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({
+            "error": f"Lỗi khi xóa sách: {str(e)}"
+        }), 500
