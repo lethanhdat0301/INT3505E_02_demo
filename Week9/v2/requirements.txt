@@ -1,0 +1,5 @@
+flask
+flask_sqlalchemy
+flasgger
+PyJWT>=2.0.0
+werkzeug
