@@ -10,10 +10,49 @@ payment_bp = Blueprint("payment_bp", __name__)
 
 @payment_bp.route("/api/v1/payments/book", methods=["POST"])
 def pay_book():
+    """
+    Pay for a book (DEPRECATED)
+    ---
+    tags:
+      - Payments v1 (Deprecated)
+    deprecated: true
+    parameters:
+      - name: X-API-Key
+        in: header
+        type: string
+        required: true
+        description: API key for authorization
+
+      - in: body
+        name: body
+        schema:
+          type: object
+          required: ["bookID", "userID", "amount", "currency", "paymentMethod"]
+          properties:
+            bookID:
+              type: string
+            userID:
+              type: string
+            amount:
+              type: number
+            currency:
+              type: string
+            paymentMethod:
+              type: string
+    responses:
+      200:
+        description: Payment successful
+      401:
+        description: Invalid API key
+      400:
+        description: Missing required fields
+    """
+
     api_key = request.headers.get("X-API-Key")
     if api_key != "demo_api_key_v1":
         return jsonify({"error": "unauthorized", "message": "Invalid API key"}), 401
     
+
     data = request.get_json() or {}
     print("DEBUG JSON:", data)
     request_fields = ["bookID", "userID", "amount", "currency", "paymentMethod"]
@@ -31,9 +70,48 @@ def pay_book():
     return jsonify(result), 200
 
 
-@payment_bp.route("/api/v2/payments", methods=["POST"])
+@payment_bp.route("/api/v2/payments/book", methods=["POST"])
 @jwt_required
 def create_payment_v2():
+    """
+    Create a new payment (JWT Protected)
+    ---
+    tags:
+      - Payments v2
+    parameters:
+      - name: Authorization
+        in: header
+        type: string
+        required: true
+        description: "Bearer token"
+      - in: header
+        name: Idempotency-Key
+        type: string
+        required: false
+        description: "Optional idempotency key"
+      - in: body
+        name: body
+        schema:
+          type: object
+          required: ["book_id", "amount", "currency", "payment_method"]
+          properties:
+            book_id:
+              type: string
+            amount:
+              type: number
+            currency:
+              type: string
+            payment_method:
+              type: string
+    responses:
+      201:
+        description: Payment created successfully
+      401:
+        description: Unauthorized or invalid token
+      400:
+        description: Missing required fields
+    """
+
     idem_key = request.headers.get("Idempotency-Key")
     data = request.get_json() or {}
     print("DEBUG JSON:", data)
@@ -65,7 +143,7 @@ def create_payment_v2():
     return jsonify(new_payment.to_dict()), 201
 
 
-@payment_bp.route("/api/v2/payments/<int:payment_id>", methods=["GET"])
+@payment_bp.route("/api/v2/payments/book/<int:payment_id>", methods=["GET"])
 @jwt_required
 def get_payment_status_v2(payment_id):
     payment = Payment.query.get(payment_id)

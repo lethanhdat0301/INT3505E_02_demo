@@ -1,0 +1,168 @@
+openapi: 3.0.3
+info:
+  title: Payment API
+  version: "2.0.0"
+  description: API for handling secured payment transactions (V2).
+
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    PaymentBookRequestV2:
+      type: object
+      required:
+        - book_id
+        - amount
+        - currency
+        - payment_method
+      properties:
+        book_id:
+          type: string
+          description: ID của sách cần thanh toán.
+        amount:
+          type: number
+          format: float
+          description: Số tiền cần thanh toán.
+        currency:
+          type: string
+          description: Đơn vị tiền tệ (ví dụ: USD, VND).
+        payment_method:
+          type: string
+          description: Phương thức thanh toán (ví dụ: credit_card, bank_transfer).
+
+    PaymentResponseV2:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: ID giao dịch duy nhất.
+        user_id:
+          type: string
+          description: ID người dùng đã thực hiện thanh toán.
+        book_id:
+          type: string
+        amount:
+          type: number
+          format: float
+        currency:
+          type: string
+        status:
+          type: string
+          description: Trạng thái thanh toán (ví dụ: succeeded).
+        payment_method:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+          description: Thời điểm giao dịch được tạo (ISO 8601).
+        version:
+          type: string
+          nullable: true
+        processed_at:
+          type: string
+          format: date-time
+          nullable: true
+        receipt_url:
+          type: string
+          nullable: true
+        metadata:
+          type: object
+          nullable: true
+
+    PaymentDetailResponseV2:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        status:
+          type: string
+        amount:
+          type: number
+          format: float
+        currency:
+          type: string
+        user:
+          type: object
+          properties:
+            id:
+              type: string
+        book:
+          type: object
+          properties:
+            id:
+              type: string
+        created_at:
+          type: string
+          format: date-time
+          description: Thời điểm giao dịch được tạo (ISO 8601).
+
+paths:
+  /api/v2/payments/book:
+    post:
+      summary: Create a new payment (JWT Protected)
+      tags:
+        - Payments v2
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: Idempotency-Key
+          in: header
+          schema:
+            type: string
+          required: false
+          description: Optional key to prevent duplicate transactions.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PaymentBookRequestV2'
+      responses:
+        '201':
+          description: Payment created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaymentResponseV2'
+        '401':
+          description: Unauthorized or invalid token (xảy ra khi @jwt_required hoặc current_user_id không có)
+        '400':
+          description: Missing required fields (Lỗi validation)
+        default:
+          description: Unexpected error
+
+  /api/v2/payments/book/{payment_id}:
+    get:
+      summary: Get payment status by ID (JWT Protected)
+      tags:
+        - Payments v2
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: payment_id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+          description: ID của giao dịch thanh toán.
+      responses:
+        '200':
+          description: Payment details retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaymentDetailResponseV2'
+        '404':
+          description: Payment not found
+        '401':
+          description: Unauthorized or invalid token
+        default:
+          description: Unexpected error

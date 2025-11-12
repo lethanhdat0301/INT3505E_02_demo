@@ -1,0 +1,102 @@
+openapi: 3.0.3
+info:
+  title: Payment API
+  version: "1.0.0"
+  description: API for payment transactions. (V1)
+
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+
+  schemas:
+    PaymentBookRequestV1:
+      type: object
+      required:
+        - bookID
+        - userID
+        - amount
+        - currency
+        - paymentMethod
+      properties:
+        bookID:
+          type: string
+          description: ID của sách cần thanh toán.
+        userID:
+          type: string
+          description: ID của người dùng.
+        amount:
+          type: number
+          format: float
+          description: Số tiền cần thanh toán.
+        currency:
+          type: string
+          description: Đơn vị tiền tệ (ví dụ: USD, VND).
+        paymentMethod:
+          type: string
+          description: Phương thức thanh toán.
+
+    PaymentResponseV1:
+      type: object
+      properties:
+        transactionId:
+          type: string
+          description: ID giao dịch.
+        status:
+          type: string
+          description: Trạng thái thanh toán (ví dụ: succeeded).
+        amount:
+          type: number
+          format: float
+        currency:
+          type: string
+        message:
+          type: string
+          description: Thông báo kết quả (ví dụ: Payment successful).
+
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Mã lỗi (ví dụ: unauthorized, bad_request).
+        message:
+          type: string
+          description: Mô tả chi tiết lỗi.
+
+paths:
+  /api/v1/payments/book:
+    post:
+      summary: Pay for a book (DEPRECATED)
+      tags:
+        - Payments v1 (Deprecated)
+      deprecated: true
+      security:
+        - ApiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PaymentBookRequestV1'
+      responses:
+        '200':
+          description: Payment successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaymentResponseV1'
+        '401':
+          description: Invalid API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '400':
+          description: Missing required fields
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'

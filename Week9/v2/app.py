@@ -30,10 +30,16 @@ swagger_config = {
 }
 
 swagger_template = {
+    "swagger": "2.0",
     "info": {
         "title": "Library Management API",
-        "description": "RESTful API cho hệ thống thư viện (sách, người dùng, mượn trả)",
-        "version": "1.0.0"
+        "description": "RESTful API for library system. <br><br>"
+                       "**⚠️ Deprecation Notice**: ` API version v1 : /api/v1/payments/book` is deprecated. <br><br>"
+                       "Please migrate to the new version v2: `/api/v2/payments/book` (which requires JWT for authentication). <br><br>"
+                       " Deprecation Starts: 2025-11-11 <br><br>"
+                       "Sunset Date: 2026-02-09 (The version may stop receiving updates and support after this date.) <br><br>"
+                       "Removal Date: 2026-05-09 (The version will be completely shut down and removed.)",
+        "version": "2.0.0"
     }
 }
 
