@@ -162,4 +162,31 @@ def get_payment_status_v2(payment_id):
     {
 }
     return jsonify(result), 200
-    
+
+@payment_bp.route("/api/payments/book", methods=["POST"])
+def payments_queryparam():
+    version = request.args.get("version", "2")
+
+    if version == "1":
+        return pay_book()
+    elif version == "2":
+        return create_payment_v2()
+    else:
+        return jsonify({
+            "error": "bad_request",
+            "message": f"Unsupported version '{version}'"
+        }), 400
+
+@payment_bp.route("/api/payments/book", methods=["POST"])
+def payments_header():
+    version = request.headers.get("Api-Version", "2")
+
+    if version == "1":
+        return pay_book()
+    elif version == "2":
+        return create_payment_v2()
+    else:
+        return jsonify({
+            "error": "bad_request",
+            "message": f"Unsupported Api-Version '{version}'"
+        }), 400
