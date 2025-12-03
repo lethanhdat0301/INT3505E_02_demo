@@ -1,0 +1,1344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Library Management API - Developer Portal</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-color: #2563eb;
+            --secondary-color: #1e40af;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --danger-color: #ef4444;
+            --bg-primary: #ffffff;
+            --bg-secondary: #f9fafb;
+            --bg-dark: #1f2937;
+            --text-primary: #111827;
+            --text-secondary: #6b7280;
+            --border-color: #e5e7eb;
+            --code-bg: #1e293b;
+            --deprecated-bg: #fef3c7;
+            --deprecated-text: #92400e;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: var(--text-primary);
+            background-color: var(--bg-secondary);
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            color: white;
+            padding: 2rem 2rem 3rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            font-weight: 700;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .api-version {
+            display: inline-block;
+            background: rgba(255,255,255,0.2);
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.875rem;
+            margin-top: 0.5rem;
+        }
+
+        /* Deprecation Banner */
+        .deprecation-banner {
+            background: var(--deprecated-bg);
+            border-left: 4px solid var(--warning-color);
+            padding: 1rem 2rem;
+            margin: 1rem 0;
+            border-radius: 4px;
+        }
+
+        .deprecation-banner h3 {
+            color: var(--deprecated-text);
+            margin-bottom: 0.5rem;
+            font-size: 1rem;
+        }
+
+        .deprecation-banner p {
+            color: var(--deprecated-text);
+            font-size: 0.9rem;
+        }
+
+        /* Layout */
+        .container {
+            max-width: 1400px;
+            margin: -2rem auto 0;
+            display: flex;
+            gap: 2rem;
+            padding: 0 2rem 2rem;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 280px;
+            flex-shrink: 0;
+            position: sticky;
+            top: 1rem;
+            height: fit-content;
+            max-height: calc(100vh - 2rem);
+            overflow-y: auto;
+        }
+
+        .nav-card {
+            background: var(--bg-primary);
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .nav-section {
+            margin-bottom: 1.5rem;
+        }
+
+        .nav-section:last-child {
+            margin-bottom: 0;
+        }
+
+        .nav-section h3 {
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            color: var(--text-secondary);
+            margin-bottom: 0.75rem;
+            font-weight: 600;
+            letter-spacing: 0.05em;
+        }
+
+        .nav-item {
+            padding: 0.5rem 0.75rem;
+            cursor: pointer;
+            border-radius: 6px;
+            transition: all 0.2s;
+            margin-bottom: 0.25rem;
+            font-size: 0.9rem;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .nav-item:hover {
+            background: var(--bg-secondary);
+            color: var(--primary-color);
+        }
+
+        .nav-item.active {
+            background: var(--primary-color);
+            color: white;
+            font-weight: 500;
+        }
+
+        .method-badge {
+            font-size: 0.7rem;
+            padding: 0.15rem 0.4rem;
+            border-radius: 3px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .method-get { background: #10b981; color: white; }
+        .method-post { background: #3b82f6; color: white; }
+        .method-put { background: #f59e0b; color: white; }
+        .method-delete { background: #ef4444; color: white; }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .endpoint-card {
+            background: var(--bg-primary);
+            border-radius: 8px;
+            padding: 2rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            display: none;
+        }
+
+        .endpoint-card.active {
+            display: block;
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .endpoint-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .endpoint-method {
+            font-size: 1rem;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .endpoint-path {
+            font-family: 'Courier New', monospace;
+            font-size: 1.2rem;
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+
+        .deprecated-badge {
+            background: var(--warning-color);
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .endpoint-description {
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+            font-size: 1rem;
+        }
+
+        .section-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin: 2rem 0 1rem;
+            color: var(--text-primary);
+        }
+
+        /* Parameters Table */
+        .params-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 2rem;
+        }
+
+        .params-table th {
+            background: var(--bg-secondary);
+            padding: 0.75rem;
+            text-align: left;
+            font-weight: 600;
+            font-size: 0.875rem;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .params-table td {
+            padding: 0.75rem;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 0.9rem;
+        }
+
+        .params-table code {
+            background: var(--bg-secondary);
+            padding: 0.2rem 0.5rem;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85rem;
+        }
+
+        .required-badge {
+            background: var(--danger-color);
+            color: white;
+            padding: 0.15rem 0.4rem;
+            border-radius: 3px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        /* Code Snippets */
+        .code-tabs {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .code-tab {
+            padding: 0.75rem 1.5rem;
+            cursor: pointer;
+            background: transparent;
+            border: none;
+            font-weight: 500;
+            color: var(--text-secondary);
+            transition: all 0.2s;
+            border-bottom: 2px solid transparent;
+            margin-bottom: -2px;
+        }
+
+        .code-tab:hover {
+            color: var(--primary-color);
+        }
+
+        .code-tab.active {
+            color: var(--primary-color);
+            border-bottom-color: var(--primary-color);
+        }
+
+        .code-content {
+            display: none;
+        }
+
+        .code-content.active {
+            display: block;
+        }
+
+        .code-block {
+            background: var(--code-bg);
+            color: #e2e8f0;
+            padding: 1.5rem;
+            border-radius: 6px;
+            overflow-x: auto;
+            position: relative;
+        }
+
+        .code-block pre {
+            margin: 0;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+
+        .copy-button {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: rgba(255,255,255,0.1);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.2);
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: all 0.2s;
+        }
+
+        .copy-button:hover {
+            background: rgba(255,255,255,0.2);
+        }
+
+        .copy-button.copied {
+            background: var(--success-color);
+            border-color: var(--success-color);
+        }
+
+        /* Response Examples */
+        .response-box {
+            background: var(--bg-secondary);
+            border-left: 4px solid var(--success-color);
+            padding: 1rem;
+            border-radius: 4px;
+            margin-bottom: 1rem;
+        }
+
+        .response-status {
+            font-weight: 600;
+            color: var(--success-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .response-box.error {
+            border-left-color: var(--danger-color);
+        }
+
+        .response-box.error .response-status {
+            color: var(--danger-color);
+        }
+
+        /* Search Box */
+        .search-box {
+            margin-bottom: 1rem;
+            padding: 1rem;
+            background: var(--bg-primary);
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 0.9rem;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        /* Syntax Highlighting */
+        .code-block .string { color: #a5d6ff; }
+        .code-block .number { color: #79c0ff; }
+        .code-block .boolean { color: #ff7b72; }
+        .code-block .null { color: #ff7b72; }
+        .code-block .key { color: #79c0ff; }
+        .code-block .comment { color: #8b949e; }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-secondary);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border-color);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--text-secondary);
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-content">
+            <h1>📚 Library Management API</h1>
+            <p>Complete RESTful API for managing books, users, and borrowing records</p>
+            <span class="api-version">v2.0.0</span>
+            
+            <div class="deprecation-banner">
+                <h3>⚠️ Deprecation Notice</h3>
+                <p><strong>API version v1 : /api/v1/payments/book is deprecated</strong><br>
+                Start date: 2025-11-11 | Sunset date: 2026-02-09 | Removal date: 2026-05-09<br>
+                Please migrate to <code>/api/v2/payments/book</code> which uses JWT authentication instead of API keys.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <aside class="sidebar">
+            <div class="search-box">
+                <input type="text" class="search-input" placeholder="Search endpoints..." id="searchInput">
+            </div>
+            
+            <div class="nav-card">
+                <div class="nav-section">
+                    <h3>🔐 Authentication</h3>
+                    <div class="nav-item" data-endpoint="login">
+                        <span class="method-badge method-post">POST</span>
+                        Login
+                    </div>
+                    <div class="nav-item" data-endpoint="register">
+                        <span class="method-badge method-post">POST</span>
+                        Register
+                    </div>
+                    <div class="nav-item" data-endpoint="me">
+                        <span class="method-badge method-get">GET</span>
+                        Get Profile
+                    </div>
+                    <div class="nav-item" data-endpoint="admin">
+                        <span class="method-badge method-get">GET</span>
+                        Admin Verify
+                    </div>
+                </div>
+
+                <div class="nav-section">
+                    <h3>📖 Books</h3>
+                    <div class="nav-item" data-endpoint="books-list">
+                        <span class="method-badge method-get">GET</span>
+                        List Books
+                    </div>
+                    <div class="nav-item" data-endpoint="books-create">
+                        <span class="method-badge method-post">POST</span>
+                        Create Book
+                    </div>
+                    <div class="nav-item" data-endpoint="books-get">
+                        <span class="method-badge method-get">GET</span>
+                        Get Book
+                    </div>
+                    <div class="nav-item" data-endpoint="books-delete">
+                        <span class="method-badge method-delete">DELETE</span>
+                        Delete Book
+                    </div>
+                </div>
+
+                <div class="nav-section">
+                    <h3>📋 Borrow Records</h3>
+                    <div class="nav-item" data-endpoint="borrows-list">
+                        <span class="method-badge method-get">GET</span>
+                        List Borrows
+                    </div>
+                    <div class="nav-item" data-endpoint="borrows-create">
+                        <span class="method-badge method-post">POST</span>
+                        Create Borrow
+                    </div>
+                    <div class="nav-item" data-endpoint="borrows-return">
+                        <span class="method-badge method-put">PUT</span>
+                        Return Book
+                    </div>
+                </div>
+
+                <div class="nav-section">
+                    <h3>👥 Users</h3>
+                    <div class="nav-item" data-endpoint="users-list">
+                        <span class="method-badge method-get">GET</span>
+                        List Users
+                    </div>
+                    <div class="nav-item" data-endpoint="users-create">
+                        <span class="method-badge method-post">POST</span>
+                        Create User
+                    </div>
+                </div>
+
+                <div class="nav-section">
+                    <h3>💳 Payments</h3>
+                    <div class="nav-item" data-endpoint="payment-v1">
+                        <span class="method-badge method-post">POST</span>
+                        Pay v1 (Deprecated)
+                    </div>
+                    <div class="nav-item" data-endpoint="payment-v2">
+                        <span class="method-badge method-post">POST</span>
+                        Pay v2
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <main class="main-content" id="mainContent">
+            <!-- Endpoints will be dynamically loaded here -->
+        </main>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:5000';
+        
+        const endpoints = {
+            'login': {
+                method: 'POST',
+                path: '/api/v1/auth/login',
+                description: 'Authenticate user and receive JWT access token',
+                parameters: {
+                    body: [
+                        { name: 'email', type: 'string', required: true, description: 'User email address' },
+                        { name: 'password', type: 'string', required: true, description: 'User password' }
+                    ]
+                },
+                requestExample: {
+                    email: 'user@example.com',
+                    password: 'password123'
+                },
+                responseExample: {
+                    access_token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
+                    user: {
+                        userId: 1,
+                        email: 'user@example.com',
+                        name: 'John Doe'
+                    }
+                },
+                curl: `curl -X POST ${API_BASE}/api/v1/auth/login \\
+  -H "Content-Type: application/json" \\
+  -d '{"email":"user@example.com","password":"password123"}'`,
+                powershell: `Invoke-RestMethod -Uri '${API_BASE}/api/v1/auth/login' \`
+  -Method POST \`
+  -ContentType 'application/json' \`
+  -Body '{"email":"user@example.com","password":"password123"}'`,
+                javascript: `fetch('${API_BASE}/api/v1/auth/login', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    email: 'user@example.com',
+    password: 'password123'
+  })
+}).then(res => res.json()).then(data => console.log(data));`,
+                python: `import requests
+
+response = requests.post('${API_BASE}/api/v1/auth/login',
+  json={'email': 'user@example.com', 'password': 'password123'})
+print(response.json())`
+            },
+            'register': {
+                method: 'POST',
+                path: '/api/v1/auth/register',
+                description: 'Register a new user account',
+                parameters: {
+                    body: [
+                        { name: 'email', type: 'string', required: true, description: 'User email address' },
+                        { name: 'password', type: 'string', required: true, description: 'User password' },
+                        { name: 'name', type: 'string', required: true, description: 'User full name' }
+                    ]
+                },
+                requestExample: {
+                    email: 'newuser@example.com',
+                    password: 'securepass123',
+                    name: 'Jane Smith'
+                },
+                responseExample: {
+                    message: 'User registered successfully',
+                    user: {
+                        userId: 5,
+                        email: 'newuser@example.com',
+                        name: 'Jane Smith'
+                    }
+                },
+                curl: `curl -X POST ${API_BASE}/api/v1/auth/register \\
+  -H "Content-Type: application/json" \\
+  -d '{"email":"newuser@example.com","password":"securepass123","name":"Jane Smith"}'`,
+                powershell: `Invoke-RestMethod -Uri '${API_BASE}/api/v1/auth/register' \`
+  -Method POST \`
+  -ContentType 'application/json' \`
+  -Body '{"email":"newuser@example.com","password":"securepass123","name":"Jane Smith"}'`,
+                javascript: `fetch('${API_BASE}/api/v1/auth/register', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    email: 'newuser@example.com',
+    password: 'securepass123',
+    name: 'Jane Smith'
+  })
+}).then(res => res.json()).then(data => console.log(data));`,
+                python: `import requests
+
+response = requests.post('${API_BASE}/api/v1/auth/register',
+  json={'email': 'newuser@example.com', 'password': 'securepass123', 'name': 'Jane Smith'})
+print(response.json())`
+            },
+            'me': {
+                method: 'GET',
+                path: '/api/v1/auth/me',
+                description: 'Get current authenticated user profile. Requires JWT token.',
+                authRequired: true,
+                parameters: {
+                    header: [
+                        { name: 'Authorization', type: 'string', required: true, description: 'Bearer {token}' }
+                    ]
+                },
+                responseExample: {
+                    email: 'user@example.com',
+                    name: 'John Doe',
+                    userId: 1
+                },
+                curl: `curl -X GET ${API_BASE}/api/v1/auth/me \\
+  -H "Authorization: Bearer YOUR_JWT_TOKEN"`,
+                powershell: `Invoke-RestMethod -Uri '${API_BASE}/api/v1/auth/me' \`
+  -Method GET \`
+  -Headers @{ Authorization = 'Bearer YOUR_JWT_TOKEN' }`,
+                javascript: `fetch('${API_BASE}/api/v1/auth/me', {
+  method: 'GET',
+  headers: { 'Authorization': 'Bearer YOUR_JWT_TOKEN' }
+}).then(res => res.json()).then(data => console.log(data));`,
+                python: `import requests
+
+headers = {'Authorization': 'Bearer YOUR_JWT_TOKEN'}
+response = requests.get('${API_BASE}/api/v1/auth/me', headers=headers)
+print(response.json())`
+            },
+            'admin': {
+                method: 'GET',
+                path: '/api/v1/auth/admin',
+                description: 'Admin-only endpoint. Requires valid JWT token with admin privileges.',
+                authRequired: true,
+                parameters: {
+                    header: [
+                        { name: 'Authorization', type: 'string', required: true, description: 'Bearer {token}' }
+                    ]
+                },
+                responseExample: {
+                    message: 'Admin access granted',
+                    user: {
+                        email: 'admin@example.com',
+                        name: 'Admin User',
+                        userId: 1
+                    }
+                },
+                curl: `curl -X GET ${API_BASE}/api/v1/auth/admin \\
+  -H "Authorization: Bearer YOUR_JWT_TOKEN"`,
+                powershell: `Invoke-RestMethod -Uri '${API_BASE}/api/v1/auth/admin' \`
+  -Method GET \`
+  -Headers @{ Authorization = 'Bearer YOUR_JWT_TOKEN' }`,
+                javascript: `fetch('${API_BASE}/api/v1/auth/admin', {
+  method: 'GET',
+  headers: { 'Authorization': 'Bearer YOUR_JWT_TOKEN' }
+}).then(res => res.json()).then(data => console.log(data));`,
+                python: `import requests
+
+headers = {'Authorization': 'Bearer YOUR_JWT_TOKEN'}
+response = requests.get('${API_BASE}/api/v1/auth/admin', headers=headers)
+print(response.json())`
+            },
+            'books-list': {
+                method: 'GET',
+                path: '/api/v1/books',
+                description: 'Retrieve a paginated list of books with optional filtering and sorting',
+                parameters: {
+                    query: [
+                        { name: 'page', type: 'integer', required: false, default: 1, description: 'Page number' },
+                        { name: 'per_page', type: 'integer', required: false, default: 10, description: 'Items per page' },
+                        { name: 'search', type: 'string', required: false, description: 'Search by title or author' },
+                        { name: 'category', type: 'string', required: false, description: 'Filter by category' },
+                        { name: 'available', type: 'boolean', required: false, description: 'Filter available books' }
+                    ]
+                },
+                responseExample: {
+                    data: {
+                        items: [
+                            { id: 1, title: 'The Great Gatsby', author: 'F. Scott Fitzgerald', category: 'Fiction', available: true },
+                            { id: 2, title: '1984', author: 'George Orwell', category: 'Fiction', available: false }
+                        ],
+                        pagination: {
+                            current_page: 1,
+                            per_page: 10,
+                            total_items: 42,
+                            total_pages: 5,
+                            has_next: true,
+                            has_prev: false
+                        }
+                    },
+                    meta: { status: 'success', message: 'Retrieved 2 books' }
+                },
+                curl: `curl -X GET "${API_BASE}/api/v1/books?page=1&per_page=10&search=gatsby"`,
+                powershell: `Invoke-RestMethod -Uri '${API_BASE}/api/v1/books?page=1&per_page=10&search=gatsby' -Method GET`,
+                javascript: `fetch('${API_BASE}/api/v1/books?page=1&per_page=10&search=gatsby')
+  .then(res => res.json())
+  .then(data => console.log(data));`,
+                python: `import requests
+
+params = {'page': 1, 'per_page': 10, 'search': 'gatsby'}
+response = requests.get('${API_BASE}/api/v1/books', params=params)
+print(response.json())`
+            },
+            'books-create': {
+                method: 'POST',
+                path: '/api/v1/books',
+                description: 'Create a new book entry in the library',
+                parameters: {
+                    body: [
+                        { name: 'title', type: 'string', required: true, description: 'Book title' },
+                        { name: 'author', type: 'string', required: true, description: 'Book author' },
+                        { name: 'category', type: 'string', required: false, description: 'Book category' },
+                        { name: 'isbn', type: 'string', required: false, description: 'ISBN number' }
+                    ]
+                },
+                requestExample: {
+                    title: 'Clean Code',
+                    author: 'Robert C. Martin',
+                    category: 'Programming',
+                    isbn: '978-0132350884'
+                },
+                responseExample: {
+                    data: {
+                        id: 15,
+                        title: 'Clean Code',
+                        author: 'Robert C. Martin',
+                        category: 'Programming',
+                        isbn: '978-0132350884',
+                        available: true
+                    },
+                    meta: { status: 'success', message: 'Book created successfully' }
+                },
+                curl: `curl -X POST ${API_BASE}/api/v1/books \\
+  -H "Content-Type: application/json" \\
+  -d '{"title":"Clean Code","author":"Robert C. Martin","category":"Programming"}'`,
+                powershell: `Invoke-RestMethod -Uri '${API_BASE}/api/v1/books' \`
+  -Method POST \`
+  -ContentType 'application/json' \`
+  -Body '{"title":"Clean Code","author":"Robert C. Martin","category":"Programming"}'`,
+                javascript: `fetch('${API_BASE}/api/v1/books', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    title: 'Clean Code',
+    author: 'Robert C. Martin',
+    category: 'Programming'
+  })
+}).then(res => res.json()).then(data => console.log(data));`,
+                python: `import requests
+
+data = {
+    'title': 'Clean Code',
+    'author': 'Robert C. Martin',
+    'category': 'Programming'
+}
+response = requests.post('${API_BASE}/api/v1/books', json=data)
+print(response.json())`
+            },
+            'books-get': {
+                method: 'GET',
+                path: '/api/v1/books/{book_id}',
+                description: 'Get detailed information about a specific book',
+                parameters: {
+                    path: [
+                        { name: 'book_id', type: 'integer', required: true, description: 'Book ID' }
+                    ]
+                },
+                responseExample: {
+                    data: {
+                        id: 1,
+                        title: 'The Great Gatsby',
+                        author: 'F. Scott Fitzgerald',
+                        category: 'Fiction',
+                        isbn: '978-0743273565',
+                        available: true
+                    }
+                },
+                curl: `curl -X GET ${API_BASE}/api/v1/books/1`,
+                powershell: `Invoke-RestMethod -Uri '${API_BASE}/api/v1/books/1' -Method GET`,
+                javascript: `fetch('${API_BASE}/api/v1/books/1')
+  .then(res => res.json())
+  .then(data => console.log(data));`,
+                python: `import requests
+
+response = requests.get('${API_BASE}/api/v1/books/1')
+print(response.json())`
+            },
+            'books-delete': {
+                method: 'DELETE',
+                path: '/api/v1/books/{book_id}',
+                description: 'Delete a book from the library',
+                parameters: {
+                    path: [
+                        { name: 'book_id', type: 'integer', required: true, description: 'Book ID to delete' }
+                    ]
+                },
+                responseExample: {
+                    message: 'Book deleted successfully'
+                },
+                curl: `curl -X DELETE ${API_BASE}/api/v1/books/1`,
+                powershell: `Invoke-RestMethod -Uri '${API_BASE}/api/v1/books/1' -Method DELETE`,
+                javascript: `fetch('${API_BASE}/api/v1/books/1', {
+  method: 'DELETE'
+}).then(res => res.json()).then(data => console.log(data));`,
+                python: `import requests
+
+response = requests.delete('${API_BASE}/api/v1/books/1')
+print(response.json())`
+            },
+            'borrows-list': {
+                method: 'GET',
+                path: '/api/v1/borrows',
+                description: 'Get all borrow records with pagination',
+                parameters: {
+                    query: [
+                        { name: 'page', type: 'integer', required: false, default: 1, description: 'Page number' },
+                        { name: 'per_page', type: 'integer', required: false, default: 10, description: 'Items per page' }
+                    ]
+                },
+                responseExample: {
+                    data: {
+                        items: [
+                            { id: 1, bookId: 5, userId: 3, borrowDate: '2025-12-01', returnDate: null, status: 'borrowed' }
+                        ],
+                        pagination: { current_page: 1, total_items: 15, total_pages: 2 }
+                    }
+                },
+                curl: `curl -X GET "${API_BASE}/api/v1/borrows?page=1&per_page=10"`,
+                powershell: `Invoke-RestMethod -Uri '${API_BASE}/api/v1/borrows?page=1&per_page=10' -Method GET`,
+                javascript: `fetch('${API_BASE}/api/v1/borrows?page=1&per_page=10')
+  .then(res => res.json())
+  .then(data => console.log(data));`,
+                python: `import requests
+
+response = requests.get('${API_BASE}/api/v1/borrows', params={'page': 1, 'per_page': 10})
+print(response.json())`
+            },
+            'borrows-create': {
+                method: 'POST',
+                path: '/api/v1/borrows',
+                description: 'Create a new borrow record. Requires authentication.',
+                authRequired: true,
+                parameters: {
+                    header: [
+                        { name: 'Authorization', type: 'string', required: true, description: 'Bearer {token}' }
+                    ],
+                    body: [
+                        { name: 'bookId', type: 'integer', required: true, description: 'ID of book to borrow' },
+                        { name: 'userId', type: 'integer', required: true, description: 'ID of user borrowing' }
+                    ]
+                },
+                requestExample: {
+                    bookId: 5,
+                    userId: 3
+                },
+                responseExample: {
+                    data: {
+                        id: 8,
+                        bookId: 5,
+                        userId: 3,
+                        borrowDate: '2025-12-03',
+                        status: 'borrowed'
+                    },
+                    message: 'Borrow record created successfully'
+                },
+                curl: `curl -X POST ${API_BASE}/api/v1/borrows \\
+  -H "Authorization: Bearer YOUR_JWT_TOKEN" \\
+  -H "Content-Type: application/json" \\
+  -d '{"bookId":5,"userId":3}'`,
+                powershell: `Invoke-RestMethod -Uri '${API_BASE}/api/v1/borrows' \`
+  -Method POST \`
+  -Headers @{ Authorization = 'Bearer YOUR_JWT_TOKEN' } \`
+  -ContentType 'application/json' \`
+  -Body '{"bookId":5,"userId":3}'`,
+                javascript: `fetch('${API_BASE}/api/v1/borrows', {
+  method: 'POST',
+  headers: {
+    'Authorization': 'Bearer YOUR_JWT_TOKEN',
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({ bookId: 5, userId: 3 })
+}).then(res => res.json()).then(data => console.log(data));`,
+                python: `import requests
+
+headers = {'Authorization': 'Bearer YOUR_JWT_TOKEN'}
+data = {'bookId': 5, 'userId': 3}
+response = requests.post('${API_BASE}/api/v1/borrows', headers=headers, json=data)
+print(response.json())`
+            },
+            'borrows-return': {
+                method: 'PUT',
+                path: '/api/v1/borrows/{borrow_id}/return',
+                description: 'Mark a borrow record as returned',
+                parameters: {
+                    path: [
+                        { name: 'borrow_id', type: 'integer', required: true, description: 'Borrow record ID' }
+                    ]
+                },
+                responseExample: {
+                    data: {
+                        id: 8,
+                        bookId: 5,
+                        userId: 3,
+                        borrowDate: '2025-12-03',
+                        returnDate: '2025-12-03',
+                        status: 'returned'
+                    },
+                    message: 'Book returned successfully'
+                },
+                curl: `curl -X PUT ${API_BASE}/api/v1/borrows/8/return`,
+                powershell: `Invoke-RestMethod -Uri '${API_BASE}/api/v1/borrows/8/return' -Method PUT`,
+                javascript: `fetch('${API_BASE}/api/v1/borrows/8/return', {
+  method: 'PUT'
+}).then(res => res.json()).then(data => console.log(data));`,
+                python: `import requests
+
+response = requests.put('${API_BASE}/api/v1/borrows/8/return')
+print(response.json())`
+            },
+            'users-list': {
+                method: 'GET',
+                path: '/api/v1/users',
+                description: 'Get paginated list of users with search and sorting',
+                parameters: {
+                    query: [
+                        { name: 'page', type: 'integer', required: false, default: 1, description: 'Page number' },
+                        { name: 'per_page', type: 'integer', required: false, default: 10, description: 'Items per page' },
+                        { name: 'search', type: 'string', required: false, description: 'Search by name or email' },
+                        { name: 'sort_by', type: 'string', required: false, default: 'name', description: 'Sort field' },
+                        { name: 'order', type: 'string', required: false, default: 'asc', description: 'Sort order (asc/desc)' }
+                    ]
+                },
+                responseExample: {
+                    data: {
+                        items: [
+                            { userId: 1, name: 'John Doe', email: 'john@example.com' },
+                            { userId: 2, name: 'Jane Smith', email: 'jane@example.com' }
+                        ],
+                        pagination: { current_page: 1, total_items: 25, total_pages: 3 }
+                    }
+                },
+                curl: `curl -X GET "${API_BASE}/api/v1/users?page=1&search=john"`,
+                powershell: `Invoke-RestMethod -Uri '${API_BASE}/api/v1/users?page=1&search=john' -Method GET`,
+                javascript: `fetch('${API_BASE}/api/v1/users?page=1&search=john')
+  .then(res => res.json())
+  .then(data => console.log(data));`,
+                python: `import requests
+
+response = requests.get('${API_BASE}/api/v1/users', params={'page': 1, 'search': 'john'})
+print(response.json())`
+            },
+            'users-create': {
+                method: 'POST',
+                path: '/api/v1/users',
+                description: 'Create a new user',
+                parameters: {
+                    body: [
+                        { name: 'name', type: 'string', required: true, description: 'User full name' },
+                        { name: 'email', type: 'string', required: true, description: 'User email address' }
+                    ]
+                },
+                requestExample: {
+                    name: 'Alice Johnson',
+                    email: 'alice@example.com'
+                },
+                responseExample: {
+                    data: {
+                        userId: 26,
+                        name: 'Alice Johnson',
+                        email: 'alice@example.com'
+                    },
+                    message: 'User created successfully'
+                },
+                curl: `curl -X POST ${API_BASE}/api/v1/users \\
+  -H "Content-Type: application/json" \\
+  -d '{"name":"Alice Johnson","email":"alice@example.com"}'`,
+                powershell: `Invoke-RestMethod -Uri '${API_BASE}/api/v1/users' \`
+  -Method POST \`
+  -ContentType 'application/json' \`
+  -Body '{"name":"Alice Johnson","email":"alice@example.com"}'`,
+                javascript: `fetch('${API_BASE}/api/v1/users', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    name: 'Alice Johnson',
+    email: 'alice@example.com'
+  })
+}).then(res => res.json()).then(data => console.log(data));`,
+                python: `import requests
+
+data = {'name': 'Alice Johnson', 'email': 'alice@example.com'}
+response = requests.post('${API_BASE}/api/v1/users', json=data)
+print(response.json())`
+            },
+            'payment-v1': {
+                method: 'POST',
+                path: '/api/v1/payments/book',
+                description: '⚠️ DEPRECATED - Use v2 instead. Pay for a book using API key authentication.',
+                deprecated: true,
+                parameters: {
+                    header: [
+                        { name: 'X-API-Key', type: 'string', required: true, description: 'API key for authorization' }
+                    ],
+                    body: [
+                        { name: 'bookID', type: 'string', required: true, description: 'Book ID' },
+                        { name: 'userID', type: 'string', required: true, description: 'User ID' },
+                        { name: 'amount', type: 'number', required: true, description: 'Payment amount' },
+                        { name: 'currency', type: 'string', required: true, description: 'Currency code (USD, EUR, etc.)' },
+                        { name: 'paymentMethod', type: 'string', required: true, description: 'Payment method' }
+                    ]
+                },
+                requestExample: {
+                    bookID: '15',
+                    userID: '3',
+                    amount: 29.99,
+                    currency: 'USD',
+                    paymentMethod: 'credit_card'
+                },
+                responseExample: {
+                    message: 'Payment successful',
+                    transactionId: 'txn_1234567890'
+                },
+                curl: `curl -X POST ${API_BASE}/api/v1/payments/book \\
+  -H "X-API-Key: YOUR_API_KEY" \\
+  -H "Content-Type: application/json" \\
+  -d '{"bookID":"15","userID":"3","amount":29.99,"currency":"USD","paymentMethod":"credit_card"}'`,
+                powershell: `Invoke-RestMethod -Uri '${API_BASE}/api/v1/payments/book' \`
+  -Method POST \`
+  -Headers @{ 'X-API-Key' = 'YOUR_API_KEY' } \`
+  -ContentType 'application/json' \`
+  -Body '{"bookID":"15","userID":"3","amount":29.99,"currency":"USD","paymentMethod":"credit_card"}'`,
+                javascript: `fetch('${API_BASE}/api/v1/payments/book', {
+  method: 'POST',
+  headers: {
+    'X-API-Key': 'YOUR_API_KEY',
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({
+    bookID: '15',
+    userID: '3',
+    amount: 29.99,
+    currency: 'USD',
+    paymentMethod: 'credit_card'
+  })
+}).then(res => res.json()).then(data => console.log(data));`,
+                python: `import requests
+
+headers = {'X-API-Key': 'YOUR_API_KEY'}
+data = {
+    'bookID': '15',
+    'userID': '3',
+    'amount': 29.99,
+    'currency': 'USD',
+    'paymentMethod': 'credit_card'
+}
+response = requests.post('${API_BASE}/api/v1/payments/book', headers=headers, json=data)
+print(response.json())`
+            },
+            'payment-v2': {
+                method: 'POST',
+                path: '/api/v2/payments/book',
+                description: 'Create a new payment using JWT authentication. Supports idempotency.',
+                authRequired: true,
+                parameters: {
+                    header: [
+                        { name: 'Authorization', type: 'string', required: true, description: 'Bearer {token}' },
+                        { name: 'Idempotency-Key', type: 'string', required: false, description: 'Unique key for idempotent requests' }
+                    ],
+                    body: [
+                        { name: 'book_id', type: 'string', required: true, description: 'Book ID' },
+                        { name: 'amount', type: 'number', required: true, description: 'Payment amount' },
+                        { name: 'currency', type: 'string', required: true, description: 'Currency code' },
+                        { name: 'payment_method', type: 'string', required: true, description: 'Payment method' }
+                    ]
+                },
+                requestExample: {
+                    book_id: '15',
+                    amount: 29.99,
+                    currency: 'USD',
+                    payment_method: 'credit_card'
+                },
+                responseExample: {
+                    id: 'pay_1234567890',
+                    status: 'succeeded',
+                    amount: 29.99,
+                    currency: 'USD',
+                    book_id: '15'
+                },
+                curl: `curl -X POST ${API_BASE}/api/v2/payments/book \\
+  -H "Authorization: Bearer YOUR_JWT_TOKEN" \\
+  -H "Content-Type: application/json" \\
+  -H "Idempotency-Key: unique-key-123" \\
+  -d '{"book_id":"15","amount":29.99,"currency":"USD","payment_method":"credit_card"}'`,
+                powershell: `Invoke-RestMethod -Uri '${API_BASE}/api/v2/payments/book' \`
+  -Method POST \`
+  -Headers @{ 
+    Authorization = 'Bearer YOUR_JWT_TOKEN'
+    'Idempotency-Key' = 'unique-key-123'
+  } \`
+  -ContentType 'application/json' \`
+  -Body '{"book_id":"15","amount":29.99,"currency":"USD","payment_method":"credit_card"}'`,
+                javascript: `fetch('${API_BASE}/api/v2/payments/book', {
+  method: 'POST',
+  headers: {
+    'Authorization': 'Bearer YOUR_JWT_TOKEN',
+    'Content-Type': 'application/json',
+    'Idempotency-Key': 'unique-key-123'
+  },
+  body: JSON.stringify({
+    book_id: '15',
+    amount: 29.99,
+    currency: 'USD',
+    payment_method: 'credit_card'
+  })
+}).then(res => res.json()).then(data => console.log(data));`,
+                python: `import requests
+
+headers = {
+    'Authorization': 'Bearer YOUR_JWT_TOKEN',
+    'Idempotency-Key': 'unique-key-123'
+}
+data = {
+    'book_id': '15',
+    'amount': 29.99,
+    'currency': 'USD',
+    'payment_method': 'credit_card'
+}
+response = requests.post('${API_BASE}/api/v2/payments/book', headers=headers, json=data)
+print(response.json())`
+            }
+        };
+
+        function renderEndpoint(endpointId) {
+            const endpoint = endpoints[endpointId];
+            if (!endpoint) return;
+
+            const authBadge = endpoint.authRequired 
+                ? '<span style="background: #10b981; color: white; padding: 0.25rem 0.75rem; border-radius: 4px; font-size: 0.75rem; font-weight: 600; margin-left: 0.5rem;">🔐 AUTH REQUIRED</span>' 
+                : '';
+            
+            const deprecatedBadge = endpoint.deprecated 
+                ? '<span class="deprecated-badge">DEPRECATED</span>' 
+                : '';
+
+            let parametersHtml = '';
+            if (endpoint.parameters) {
+                const paramTypes = ['path', 'query', 'header', 'body'];
+                paramTypes.forEach(type => {
+                    if (endpoint.parameters[type]) {
+                        parametersHtml += `
+                            <h3 class="section-title">${type.charAt(0).toUpperCase() + type.slice(1)} Parameters</h3>
+                            <table class="params-table">
+                                <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Type</th>
+                                        <th>Required</th>
+                                        <th>Description</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${endpoint.parameters[type].map(param => `
+                                        <tr>
+                                            <td><code>${param.name}</code></td>
+                                            <td><code>${param.type}</code></td>
+                                            <td>${param.required ? '<span class="required-badge">Required</span>' : 'Optional'}</td>
+                                            <td>${param.description}${param.default ? ` (default: ${param.default})` : ''}</td>
+                                        </tr>
+                                    `).join('')}
+                                </tbody>
+                            </table>
+                        `;
+                    }
+                });
+            }
+
+            let requestExampleHtml = '';
+            if (endpoint.requestExample) {
+                requestExampleHtml = `
+                    <h3 class="section-title">Request Body Example</h3>
+                    <div class="code-block">
+                        <pre>${JSON.stringify(endpoint.requestExample, null, 2)}</pre>
+                    </div>
+                `;
+            }
+
+            let responseExampleHtml = '';
+            if (endpoint.responseExample) {
+                responseExampleHtml = `
+                    <h3 class="section-title">Response Example</h3>
+                    <div class="response-box">
+                        <div class="response-status">200 OK</div>
+                        <div class="code-block">
+                            <pre>${JSON.stringify(endpoint.responseExample, null, 2)}</pre>
+                        </div>
+                    </div>
+                `;
+            }
+
+            const html = `
+                <div class="endpoint-card active">
+                    <div class="endpoint-header">
+                        <span class="endpoint-method method-${endpoint.method.toLowerCase()}">${endpoint.method}</span>
+                        <span class="endpoint-path">${endpoint.path}</span>
+                        ${authBadge}
+                        ${deprecatedBadge}
+                    </div>
+                    <p class="endpoint-description">${endpoint.description}</p>
+                    
+                    ${parametersHtml}
+                    ${requestExampleHtml}
+                    ${responseExampleHtml}
+                    
+                    <h3 class="section-title">Code Examples</h3>
+                    <div class="code-tabs">
+                        <button class="code-tab active" data-lang="curl">cURL</button>
+                        <button class="code-tab" data-lang="powershell">PowerShell</button>
+                        <button class="code-tab" data-lang="javascript">JavaScript</button>
+                        <button class="code-tab" data-lang="python">Python</button>
+                    </div>
+                    
+                    <div class="code-content active" data-lang="curl">
+                        <div class="code-block">
+                            <button class="copy-button" onclick="copyCode(this)">Copy</button>
+                            <pre>${endpoint.curl}</pre>
+                        </div>
+                    </div>
+                    
+                    <div class="code-content" data-lang="powershell">
+                        <div class="code-block">
+                            <button class="copy-button" onclick="copyCode(this)">Copy</button>
+                            <pre>${endpoint.powershell}</pre>
+                        </div>
+                    </div>
+                    
+                    <div class="code-content" data-lang="javascript">
+                        <div class="code-block">
+                            <button class="copy-button" onclick="copyCode(this)">Copy</button>
+                            <pre>${endpoint.javascript}</pre>
+                        </div>
+                    </div>
+                    
+                    <div class="code-content" data-lang="python">
+                        <div class="code-block">
+                            <button class="copy-button" onclick="copyCode(this)">Copy</button>
+                            <pre>${endpoint.python}</pre>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('mainContent').innerHTML = html;
+
+            // Setup code tab switching
+            document.querySelectorAll('.code-tab').forEach(tab => {
+                tab.addEventListener('click', function() {
+                    const lang = this.getAttribute('data-lang');
+                    document.querySelectorAll('.code-tab').forEach(t => t.classList.remove('active'));
+                    document.querySelectorAll('.code-content').forEach(c => c.classList.remove('active'));
+                    this.classList.add('active');
+                    document.querySelector(`.code-content[data-lang="${lang}"]`).classList.add('active');
+                });
+            });
+        }
+
+        function copyCode(button) {
+            const codeBlock = button.nextElementSibling;
+            const text = codeBlock.textContent;
+            navigator.clipboard.writeText(text).then(() => {
+                button.textContent = 'Copied!';
+                button.classList.add('copied');
+                setTimeout(() => {
+                    button.textContent = 'Copy';
+                    button.classList.remove('copied');
+                }, 2000);
+            });
+        }
+
+        // Navigation
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.addEventListener('click', function() {
+                document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+                this.classList.add('active');
+                const endpoint = this.getAttribute('data-endpoint');
+                renderEndpoint(endpoint);
+            });
+        });
+
+        // Search functionality
+        document.getElementById('searchInput').addEventListener('input', function(e) {
+            const searchTerm = e.target.value.toLowerCase();
+            document.querySelectorAll('.nav-item').forEach(item => {
+                const text = item.textContent.toLowerCase();
+                if (text.includes(searchTerm)) {
+                    item.style.display = 'flex';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        });
+
+        // Load first endpoint by default
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelector('.nav-item').click();
+        });
+    </script>
+</body>
+</html>

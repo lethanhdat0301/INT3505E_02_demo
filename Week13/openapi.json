@@ -1,0 +1,903 @@
+{
+  "definitions": {
+
+  },
+  "info": {
+    "description": "RESTful API for library system. \u003Cbr\u003E\u003Cbr\u003E**⚠️ Deprecation Notice**: ` API version v1 : /api/v1/payments/book` is deprecated. \u003Cbr\u003E\u003Cbr\u003EPlease migrate to the new version v2: `/api/v2/payments/book` (which requires JWT for authentication). \u003Cbr\u003E\u003Cbr\u003E Deprecation Starts: 2025-11-11 \u003Cbr\u003E\u003Cbr\u003ESunset Date: 2026-02-09 (The version may stop receiving updates and support after this date.) \u003Cbr\u003E\u003Cbr\u003ERemoval Date: 2026-05-09 (The version will be completely shut down and removed.)",
+    "title": "Library Management API",
+    "version": "2.0.0"
+  },
+  "paths": {
+    "/api/v1/auth/admin": {
+      "get": {
+        "parameters": [
+          {
+            "description": "Bearer \u003CJWT access token\u003E",
+            "in": "header",
+            "name": "Authorization",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Decoded token payload",
+            "examples": {
+              "application/json": {
+                "token_payload": {
+                  "exp": 1600003600,
+                  "iat": 1600000000,
+                  "sub": 2
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid token"
+          }
+        },
+        "tags": [
+          "Auth"
+        ]
+      }
+    },
+    "/api/v1/auth/login": {
+      "post": {
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "schema": {
+              "properties": {
+                "email": {
+                  "type": "string"
+                },
+                "password": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "email",
+                "password"
+              ],
+              "type": "object"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Login success with token"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "tags": [
+          "Auth"
+        ]
+      }
+    },
+    "/api/v1/auth/register": {
+      "post": {
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "schema": {
+              "properties": {
+                "email": {
+                  "type": "string"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "password": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "name",
+                "email",
+                "password"
+              ],
+              "type": "object"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "User created"
+          },
+          "400": {
+            "description": "Bad request"
+          }
+        },
+        "tags": [
+          "Auth"
+        ]
+      }
+    },
+    "/api/v1/books": {
+      "get": {
+        "parameters": [
+          {
+            "default": 1,
+            "description": "Trang hiện tại",
+            "in": "query",
+            "name": "page",
+            "type": "integer"
+          },
+          {
+            "default": 10,
+            "description": "Số phần tử mỗi trang",
+            "in": "query",
+            "name": "per_page",
+            "type": "integer"
+          },
+          {
+            "description": "Tìm theo tên hoặc tác giả",
+            "in": "query",
+            "name": "search",
+            "type": "string"
+          },
+          {
+            "description": "Lọc theo thể loại",
+            "in": "query",
+            "name": "category",
+            "type": "string"
+          },
+          {
+            "description": "true = còn sách, false = đã mượn",
+            "in": "query",
+            "name": "available",
+            "type": "boolean"
+          },
+          {
+            "default": "title",
+            "description": "Trường sắp xếp",
+            "in": "query",
+            "name": "sort_by",
+            "type": "string"
+          },
+          {
+            "default": "asc",
+            "description": "Thứ tự",
+            "enum": [
+              "asc",
+              "desc"
+            ],
+            "in": "query",
+            "name": "order",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Danh sách sách có phân trang",
+            "examples": {
+              "application/json": {
+                "data": {
+                  "items": [
+                    {
+                      "author": "Mike",
+                      "bookId": 1,
+                      "category": "Lập trình",
+                      "is_available": true,
+                      "title": "Python 101"
+                    }
+                  ],
+                  "pagination": {
+                    "current_page": 1,
+                    "has_next": true,
+                    "has_prev": false,
+                    "links": {
+                      "first": "/api/v1/books?page=1",
+                      "last": "/api/v1/books?page=5",
+                      "next": "/api/v1/books?page=2",
+                      "prev": null,
+                      "self": "/api/v1/books?page=1"
+                    },
+                    "next_page": 2,
+                    "per_page": 10,
+                    "prev_page": null,
+                    "total_items": 42,
+                    "total_pages": 5
+                  }
+                },
+                "meta": {
+                  "message": "Showing 1-10 of 42 items",
+                  "status": "success"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Tham số phân trang không hợp lệ"
+          }
+        },
+        "tags": [
+          "Books"
+        ]
+      },
+      "post": {
+        "parameters": [
+          {
+            "in": "body",
+            "name": "book",
+            "required": true,
+            "schema": {
+              "properties": {
+                "author": {
+                  "description": "Tác giả",
+                  "type": "string"
+                },
+                "category": {
+                  "description": "Thể loại",
+                  "type": "string"
+                },
+                "title": {
+                  "description": "Tên sách",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "title"
+              ],
+              "type": "object"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Tạo sách thành công",
+            "examples": {
+              "application/json": {
+                "author": "Mike",
+                "bookId": 1,
+                "category": "Lập trình",
+                "is_available": true,
+                "title": "Python 101"
+              }
+            }
+          },
+          "400": {
+            "description": "Dữ liệu không hợp lệ"
+          }
+        },
+        "tags": [
+          "Books"
+        ]
+      }
+    },
+    "/api/v1/books/{book_id}": {
+      "delete": {
+        "parameters": [
+          {
+            "description": "ID của sách cần xóa",
+            "in": "path",
+            "name": "book_id",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Xóa sách thành công",
+            "examples": {
+              "application/json": {
+                "message": "Đã xóa sách có ID = 1 thành công"
+              }
+            }
+          },
+          "404": {
+            "description": "Không tìm thấy sách với ID này"
+          }
+        },
+        "summary": "Xóa sách theo ID",
+        "tags": [
+          "Books"
+        ]
+      },
+      "get": {
+        "parameters": [
+          {
+            "description": "ID của sách cần lấy thông tin",
+            "in": "path",
+            "name": "book_id",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Thông tin chi tiết của sách",
+            "examples": {
+              "application/json": {
+                "author": "Mike",
+                "bookId": 1,
+                "category": "Lập trình",
+                "is_available": true,
+                "title": "Python 101"
+              }
+            }
+          },
+          "404": {
+            "description": "Không tìm thấy sách với ID này"
+          }
+        },
+        "summary": "Lấy thông tin chi tiết 1 quyển sách theo ID",
+        "tags": [
+          "Books"
+        ]
+      }
+    },
+    "/api/v1/borrows": {
+      "get": {
+        "parameters": [
+          {
+            "default": 1,
+            "in": "query",
+            "name": "page",
+            "type": "integer"
+          },
+          {
+            "default": 10,
+            "in": "query",
+            "name": "per_page",
+            "type": "integer"
+          },
+          {
+            "description": "Tìm theo tên người hoặc sách",
+            "in": "query",
+            "name": "search",
+            "type": "string"
+          },
+          {
+            "description": "true/false",
+            "in": "query",
+            "name": "is_returned",
+            "type": "boolean"
+          },
+          {
+            "default": "borrow_date",
+            "in": "query",
+            "name": "sort_by",
+            "type": "string"
+          },
+          {
+            "default": "desc",
+            "enum": [
+              "asc",
+              "desc"
+            ],
+            "in": "query",
+            "name": "order",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Danh sách phiếu mượn",
+            "examples": {
+              "application/json": {
+                "data": {
+                  "items": [
+                    {
+                      "book": "Python 101",
+                      "borrow_date": "2023-01-01T00:00:00",
+                      "id": 1,
+                      "is_returned": false,
+                      "return_date": null,
+                      "user": "John Doe"
+                    }
+                  ],
+                  "pagination": {
+                    "current_page": 1,
+                    "has_next": false,
+                    "has_prev": false,
+                    "per_page": 10,
+                    "total_items": 1,
+                    "total_pages": 1
+                  }
+                },
+                "meta": {
+                  "message": "Showing 1-1 of 1 items",
+                  "status": "success"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Tham số không hợp lệ"
+          }
+        },
+        "tags": [
+          "Borrow Records"
+        ]
+      },
+      "post": {
+        "parameters": [
+          {
+            "in": "body",
+            "name": "borrow",
+            "required": true,
+            "schema": {
+              "properties": {
+                "book_id": {
+                  "description": "ID sách mượn",
+                  "type": "integer"
+                },
+                "user_id": {
+                  "description": "ID người mượn",
+                  "type": "integer"
+                }
+              },
+              "required": [
+                "user_id",
+                "book_id"
+              ],
+              "type": "object"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Tạo phiếu mượn thành công",
+            "examples": {
+              "application/json": {
+                "book": "Python 101",
+                "borrow_date": "2023-01-01T00:00:00",
+                "id": 1,
+                "is_returned": false,
+                "return_date": null,
+                "user": "John Doe"
+              }
+            }
+          },
+          "400": {
+            "description": "Dữ liệu không hợp lệ"
+          },
+          "404": {
+            "description": "Người dùng hoặc sách không tồn tại"
+          },
+          "409": {
+            "description": "Sách đã được mượn"
+          }
+        },
+        "tags": [
+          "Borrow Records"
+        ]
+      }
+    },
+    "/api/v1/borrows/{borrow_id}/return": {
+      "put": {
+        "parameters": [
+          {
+            "description": "ID phiếu mượn",
+            "in": "path",
+            "name": "borrow_id",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Trả sách thành công",
+            "examples": {
+              "application/json": {
+                "book": "Python 101",
+                "borrow_date": "2023-01-01T00:00:00",
+                "id": 1,
+                "is_returned": true,
+                "return_date": "2023-01-15T00:00:00",
+                "user": "John Doe"
+              }
+            }
+          },
+          "404": {
+            "description": "Phiếu mượn không tồn tại"
+          },
+          "409": {
+            "description": "Sách đã được trả"
+          }
+        },
+        "tags": [
+          "Borrow Records"
+        ]
+      }
+    },
+    "/api/v1/demo/books/cursor": {
+      "get": {
+        "parameters": [
+          {
+            "default": 10,
+            "description": "Số items trả về (max 100)",
+            "in": "query",
+            "name": "limit",
+            "type": "integer"
+          },
+          {
+            "description": "Cursor cho trang tiếp theo",
+            "in": "query",
+            "name": "cursor",
+            "type": "string"
+          },
+          {
+            "default": "next",
+            "enum": [
+              "next",
+              "prev"
+            ],
+            "in": "query",
+            "name": "direction",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Cursor pagination demo",
+            "examples": {
+              "application/json": {
+                "data": {
+                  "items": [
+                    {
+                      "author": "Author 1",
+                      "id": 1,
+                      "title": "Book 1"
+                    }
+                  ],
+                  "pagination": {
+                    "has_more": true,
+                    "limit": 10,
+                    "next_cursor": "1",
+                    "prev_cursor": null,
+                    "total_returned": 10
+                  }
+                },
+                "meta": {
+                  "message": "Retrieved 10 items",
+                  "status": "success"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Demonstrate cursor-based pagination for better performance on large datasets",
+        "tags": [
+          "Demo - Cursor Pagination"
+        ]
+      }
+    },
+    "/api/v1/demo/pagination/info": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "Pagination capabilities and examples",
+            "examples": {
+              "application/json": {
+                "pagination_types": {
+                  "cursor_based": {
+                    "best_for": "Large datasets, real-time feeds, API integrations",
+                    "description": "Cursor-based pagination for better performance",
+                    "example_url": "/api/v1/demo/books/cursor?cursor=10&limit=20",
+                    "parameters": [
+                      "cursor",
+                      "limit",
+                      "direction"
+                    ]
+                  },
+                  "offset_based": {
+                    "best_for": "Small to medium datasets, user-browsable content",
+                    "description": "Traditional page-number based pagination",
+                    "example_url": "/api/v1/books?page=2&per_page=10",
+                    "parameters": [
+                      "page",
+                      "per_page"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "summary": "Provide information about pagination capabilities",
+        "tags": [
+          "Demo - Pagination Info"
+        ]
+      }
+    },
+    "/api/v1/demo/pagination/test": {
+      "get": {
+        "parameters": [
+          {
+            "default": 1,
+            "in": "query",
+            "name": "page",
+            "type": "integer"
+          },
+          {
+            "default": 5,
+            "in": "query",
+            "name": "per_page",
+            "type": "integer"
+          },
+          {
+            "default": true,
+            "in": "query",
+            "name": "include_links",
+            "type": "boolean"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Test pagination with sample data"
+          }
+        },
+        "summary": "Test pagination with current data",
+        "tags": [
+          "Demo - Pagination Test"
+        ]
+      }
+    },
+    "/api/v1/payments/book": {
+      "post": {
+        "deprecated": true,
+        "parameters": [
+          {
+            "description": "API key for authorization",
+            "in": "header",
+            "name": "X-API-Key",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "body",
+            "name": "body",
+            "schema": {
+              "properties": {
+                "amount": {
+                  "type": "number"
+                },
+                "bookID": {
+                  "type": "string"
+                },
+                "currency": {
+                  "type": "string"
+                },
+                "paymentMethod": {
+                  "type": "string"
+                },
+                "userID": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "bookID",
+                "userID",
+                "amount",
+                "currency",
+                "paymentMethod"
+              ],
+              "type": "object"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Payment successful"
+          },
+          "400": {
+            "description": "Missing required fields"
+          },
+          "401": {
+            "description": "Invalid API key"
+          }
+        },
+        "summary": "Pay for a book (DEPRECATED)",
+        "tags": [
+          "Payments v1 (Deprecated)"
+        ]
+      }
+    },
+    "/api/v1/users": {
+      "get": {
+        "parameters": [
+          {
+            "default": 1,
+            "in": "query",
+            "name": "page",
+            "type": "integer"
+          },
+          {
+            "default": 10,
+            "in": "query",
+            "name": "per_page",
+            "type": "integer"
+          },
+          {
+            "description": "Tìm theo tên hoặc email",
+            "in": "query",
+            "name": "search",
+            "type": "string"
+          },
+          {
+            "default": "name",
+            "in": "query",
+            "name": "sort_by",
+            "type": "string"
+          },
+          {
+            "default": "asc",
+            "enum": [
+              "asc",
+              "desc"
+            ],
+            "in": "query",
+            "name": "order",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lấy danh sách người dùng thành công",
+            "examples": {
+              "application/json": {
+                "data": {
+                  "items": [
+                    {
+                      "email": "abc@example.com",
+                      "name": "A",
+                      "userId": 1
+                    },
+                    {
+                      "email": "xyz@example.com",
+                      "name": "B",
+                      "userId": 2
+                    }
+                  ],
+                  "pagination": {
+                    "current_page": 1,
+                    "has_next": false,
+                    "has_prev": false,
+                    "next_page": null,
+                    "per_page": 10,
+                    "prev_page": null,
+                    "total_items": 2,
+                    "total_pages": 1
+                  }
+                },
+                "meta": {
+                  "message": "Showing 1-2 of 2 items",
+                  "status": "success"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Tham số không hợp lệ"
+          },
+          "500": {
+            "description": "Lỗi máy chủ nội bộ"
+          }
+        },
+        "tags": [
+          "Users"
+        ]
+      },
+      "post": {
+        "parameters": [
+          {
+            "in": "body",
+            "name": "user",
+            "required": true,
+            "schema": {
+              "properties": {
+                "email": {
+                  "description": "Email người dùng",
+                  "type": "string"
+                },
+                "name": {
+                  "description": "Tên người dùng",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "name",
+                "email"
+              ],
+              "type": "object"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Tạo người dùng thành công",
+            "examples": {
+              "application/json": {
+                "data": {
+                  "email": "john@example.com",
+                  "name": "John Doe",
+                  "userId": 1
+                },
+                "message": "Tạo người dùng thành công",
+                "status": "success"
+              }
+            }
+          },
+          "400": {
+            "description": "Dữ liệu không hợp lệ"
+          },
+          "409": {
+            "description": "Email đã tồn tại"
+          }
+        },
+        "tags": [
+          "Users"
+        ]
+      }
+    },
+    "/api/v2/payments/book": {
+      "post": {
+        "parameters": [
+          {
+            "description": "Bearer token",
+            "in": "header",
+            "name": "Authorization",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "description": "Optional idempotency key",
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "in": "body",
+            "name": "body",
+            "schema": {
+              "properties": {
+                "amount": {
+                  "type": "number"
+                },
+                "book_id": {
+                  "type": "string"
+                },
+                "currency": {
+                  "type": "string"
+                },
+                "payment_method": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "book_id",
+                "amount",
+                "currency",
+                "payment_method"
+              ],
+              "type": "object"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Payment created successfully"
+          },
+          "400": {
+            "description": "Missing required fields"
+          },
+          "401": {
+            "description": "Unauthorized or invalid token"
+          }
+        },
+        "summary": "Create a new payment (JWT Protected)",
+        "tags": [
+          "Payments v2"
+        ]
+      }
+    }
+  },
+  "swagger": "2.0"
+}
